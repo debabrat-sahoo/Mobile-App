@@ -7,14 +7,18 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Mail, Phone, Calendar, LogOut } from 'lucide-react-native';
+import { ArrowLeft, User, Mail, Phone, Calendar, MapPin, Edit3, LogOut } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiService } from '@/services/api';
 import { CustomerDetails } from '@/types/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorMessage } from '@/components/ErrorMessage';
+
+const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [customer, setCustomer] = useState<CustomerDetails | null>(null);
@@ -68,64 +72,121 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(auth)/login')}>
+          <ArrowLeft size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Your Account</Text>
+        <TouchableOpacity style={styles.accountIcon}>
+          <User size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <LogOut size={20} color="#EF4444" />
-          </TouchableOpacity>
-        </View>
-
         {error && <ErrorMessage message={error} />}
 
         {customer && (
           <View style={styles.content}>
-            <View style={styles.profileCard}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {`${(customer.firstName || customer.email || '?').charAt(0)}`.toUpperCase()}
-                </Text>
+            {/* Your Majestic Account Details Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Your Majestic Account Details</Text>
+              
+              <View style={styles.accountDetails}>
+                <View style={styles.profileImageContainer}>
+                  <View style={styles.profileImage}>
+                    <Text style={styles.profileImageText}>
+                      {`${(customer.firstName || customer.email || '?').charAt(0)}`.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+                
+                <View style={styles.accountInfo}>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>First Name</Text>
+                    <Text style={styles.infoValue}>{customer.firstName || '—'}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Last Name</Text>
+                    <Text style={styles.infoValue}>{customer.lastName || '—'}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Email</Text>
+                    <Text style={styles.infoValue}>{customer.email || '—'}</Text>
+                  </View>
+                  
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Tel Number</Text>
+                    <Text style={styles.infoValue}>{customer.mobilePhone || '—'}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>DOB</Text>
+                    <Text style={styles.infoValue}>17/03/1991</Text>
+                  </View>
+                  
+                  <View style={styles.twoColumnInfo}>
+                    <View style={styles.column}>
+                      <Text style={styles.infoLabel}>Your Local Store</Text>
+                      <Text style={styles.infoValue}>Jersey</Text>
+                    </View>
+                    <View style={styles.column}>
+                      <Text style={styles.infoLabel}>Your Wine Expert</Text>
+                      <Text style={styles.infoValue}>Jake Dunster</Text>
+                    </View>
+                  </View>
+                  
+                  <TouchableOpacity style={styles.editButton}>
+                    <Edit3 size={16} color="#FFFFFF" />
+                    <Text style={styles.editButtonText}>Edit your details</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <Text style={styles.customerName}>
-                {`${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim() || customer.email || '—'}
+            </View>
+
+            {/* Address Section */}
+            <View style={styles.section}>
+              <View style={styles.addressContainer}>
+                <View style={styles.addressBlock}>
+                  <Text style={styles.addressTitle}>Delivery Address</Text>
+                  <Text style={styles.addressText}>13 La Carriere</Text>
+                  <Text style={styles.addressText}>Le Mont</Text>
+                  <Text style={styles.addressText}>Jersey</Text>
+                  <Text style={styles.addressText}>JE3 3AA</Text>
+                </View>
+                
+                <View style={styles.addressBlock}>
+                  <Text style={styles.addressTitle}>Billing Address</Text>
+                  <Text style={styles.addressText}>Flat 5, 19, Midvale Road</Text>
+                  <Text style={styles.addressText}>ST. HELIER</Text>
+                  <Text style={styles.addressText}>JERSEY</Text>
+                  <Text style={styles.addressText}>JE2 3YR</Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity style={styles.editButton}>
+                <Edit3 size={16} color="#FFFFFF" />
+                <Text style={styles.editButtonText}>Edit your addresses</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Benefits Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Don't miss your exclusive benefits</Text>
+              <Text style={styles.benefitsText}>
+                Our marketing subscribers enjoy special benefits, like Loyalty Vouchers, Special Offers, Exclusive Deals, Private Tastings, Special Events and News about Majestic's Wines, Beers and Spirits.
               </Text>
             </View>
 
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionTitle}>Contact Information</Text>
-              
-              <View style={styles.infoItem}>
-                <View style={styles.infoIcon}>
-                  <Mail size={20} color="#3B82F6" />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Email</Text>
-                  <Text style={styles.infoValue}>{customer.email || '—'}</Text>
-                </View>
-              </View>
-
-              <View style={styles.infoItem}>
-                <View style={styles.infoIcon}>
-                  <Phone size={20} color="#3B82F6" />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Phone</Text>
-                  <Text style={styles.infoValue}>{customer.mobilePhone || '—'}</Text>
-                </View>
-              </View>
-
-              <View style={styles.infoItem}>
-                <View style={styles.infoIcon}>
-                  <Calendar size={20} color="#3B82F6" />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Member Since</Text>
-                  <Text style={styles.infoValue}>{customer.createdDate ? formatDate(customer.createdDate) : '—'}</Text>
-                </View>
-              </View>
+            {/* Special Offers Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Special offers & exclusive products</Text>
+              <Text style={styles.benefitsText}>
+                It's our job to help you discover beers, wines and spirits that you'll love. From time to time, we'll send you brochures and leaflets.
+              </Text>
             </View>
           </View>
         )}
@@ -137,105 +198,142 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  scrollContainer: {
-    flexGrow: 1,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  logoutButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  profileCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#3B82F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  customerName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  infoSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 20,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: '#2D3748',
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    paddingTop: 50,
   },
-  infoIcon: {
+  backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#FFD700',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFD700',
+  },
+  accountIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  content: {
+    paddingHorizontal: 16,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2D3748',
+    marginBottom: 16,
+  },
+  accountDetails: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  profileImageContainer: {
     marginRight: 16,
   },
-  infoContent: {
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileImageText: {
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#2D3748',
+  },
+  accountInfo: {
     flex: 1,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   infoLabel: {
     fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 2,
+    color: '#718096',
+    flex: 1,
   },
   infoValue: {
     fontSize: 16,
+    color: '#2D3748',
     fontWeight: '500',
-    color: '#111827',
+    flex: 1,
+    textAlign: 'right',
+  },
+  twoColumnInfo: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 16,
+  },
+  column: {
+    flex: 1,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2D3748',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 16,
+    gap: 8,
+  },
+  editButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  addressContainer: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 16,
+  },
+  addressBlock: {
+    flex: 1,
+  },
+  addressTitle: {
+    fontSize: 14,
+    color: '#718096',
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  addressText: {
+    fontSize: 16,
+    color: '#2D3748',
+    marginBottom: 2,
+  },
+  benefitsText: {
+    fontSize: 16,
+    color: '#2D3748',
+    lineHeight: 24,
   },
 });
